@@ -6,10 +6,12 @@ use App\DataTables\RoleDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use Flash;
 use App\Http\Controllers\AppBaseController;
 use Response;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends AppBaseController
 {
@@ -31,7 +33,8 @@ class RoleController extends AppBaseController
      */
     public function create()
     {
-        return view('roles.create');
+        $permission = Permission::get();
+        return view('roles.create',compact('permission'));
     }
 
     /**
@@ -46,7 +49,9 @@ class RoleController extends AppBaseController
         $input = $request->all();
 
         /** @var Role $role */
-        $role = Role::create($input);
+        $role = Role::create(['name' => $input['name']]);
+
+        $role->syncPermissions($request->input('permission'));
 
         Flash::success('Role saved successfully.');
 
@@ -92,7 +97,13 @@ class RoleController extends AppBaseController
             return redirect(route('roles.index'));
         }
 
-        return view('roles.edit')->with('role', $role);
+        $permission = Permission::get();
+
+        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
+            ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
+            ->all();
+
+        return view('roles.edit',compact('role','permission','rolePermissions'));
     }
 
     /**
@@ -114,8 +125,10 @@ class RoleController extends AppBaseController
             return redirect(route('roles.index'));
         }
 
-        $role->fill($request->all());
+        $role->name = $request->input('name');
         $role->save();
+
+        $role->syncPermissions($request->input('permission'));
 
         Flash::success('Role updated successfully.');
 

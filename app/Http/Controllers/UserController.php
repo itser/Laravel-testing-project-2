@@ -10,6 +10,9 @@ use App\User;
 use Flash;
 use App\Http\Controllers\AppBaseController;
 use Response;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends AppBaseController
 {
@@ -31,7 +34,8 @@ class UserController extends AppBaseController
      */
     public function create()
     {
-        return view('users.create');
+        $roles = Role::pluck('name','name')->all();
+        return view('users.create',compact('roles'));
     }
 
     /**
@@ -45,8 +49,12 @@ class UserController extends AppBaseController
     {
         $input = $request->all();
 
+        $input['password'] = Hash::make(User::DEFAULT_PASSWORD);
+
         /** @var User $user */
         $user = User::create($input);
+
+        $user->assignRole($request->input('roles'));
 
         Flash::success('User saved successfully.');
 
@@ -92,7 +100,11 @@ class UserController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        return view('users.edit')->with('user', $user);
+        $roles = Role::pluck('name','name')->all();
+
+        $userRole = $user->roles->pluck('name','name')->all();
+
+        return view('users.edit',compact('user','roles','userRole'));
     }
 
     /**
@@ -105,6 +117,10 @@ class UserController extends AppBaseController
      */
     public function update($id, UpdateUserRequest $request)
     {
+        $input = $request->all();
+
+        $input['password'] = Hash::make(User::DEFAULT_PASSWORD);
+
         /** @var User $user */
         $user = User::find($id);
 
@@ -114,8 +130,12 @@ class UserController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        $user->fill($request->all());
+        $user->fill($input);
+
         $user->save();
+
+        DB::table('model_has_roles')->where('model_id',$id)->delete();
+        $user->assignRole($request->input('roles'));
 
         Flash::success('User updated successfully.');
 

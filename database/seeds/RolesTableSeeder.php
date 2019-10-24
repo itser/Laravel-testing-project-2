@@ -13,7 +13,7 @@ class RolesTableSeeder extends Seeder
      */
     public function run()
     {
-        $roles = [
+        $names = [
             'admin',
             'maintainer',
             'agent',
@@ -21,10 +21,12 @@ class RolesTableSeeder extends Seeder
             'member'
         ];
 
-        foreach ($roles as $role) {
-            $role = Role::create(['name' => $role]);
-            $permissions = Permission::pluck('id','id')->all();
-            $role->syncPermissions($permissions);
+        foreach ($names as $name) {
+            $role = Role::create(['name' => $name]);
+            if ($name == 'admin'){
+                $permissions = Permission::pluck('id','id')->all();
+                $role->syncPermissions($permissions);
+            }
         }
     }
 }

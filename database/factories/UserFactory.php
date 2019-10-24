@@ -12,7 +12,7 @@ $factory->define(User::class, function (Faker $faker) {
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
         'email_verified_at' => $faker->date('Y-m-d H:i:s'),
-        'password' => bcrypt('123456'),
+        'password' => bcrypt(User::DEFAULT_PASSWORD),
         'remember_token' => Str::random(10),
         'created_at' => $faker->date('Y-m-d H:i:s'),
         'updated_at' => $faker->date('Y-m-d H:i:s')

@@ -29,6 +29,8 @@ class User extends Authenticatable
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
+    const DEFAULT_PASSWORD = '123456';
+
 
     protected $dates = ['deleted_at'];
 
@@ -37,8 +39,8 @@ class User extends Authenticatable
         'name',
         'email',
         'email_verified_at',
-        'password',
-        'remember_token'
+        'remember_token',
+        'password'
     ];
 
     /**
@@ -62,8 +64,7 @@ class User extends Authenticatable
      */
     public static $rules = [
         'name' => 'required',
-        'email' => 'required',
-        'password' => 'required'
+        'email' => 'required'
     ];
 
     
