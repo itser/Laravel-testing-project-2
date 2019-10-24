@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class UsersTableSeeder extends Seeder
 {
@@ -11,8 +13,9 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\User::class, 50)->create()->each(function($u) {
-            $u->posts()->save(factory(App\Post::class)->make());
+        factory(App\User::class, 49)->create()->each(function($user) {
+            $role = Role::where(['name' => 'member'])->first();
+            $user->assignRole([$role->id]);
         });
     }
 }
