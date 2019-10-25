@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\UserDataTable;
+use App\Events\onAddUser;
 use App\Http\Requests;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Mail\NewUser;
 use App\User;
 use Flash;
 use App\Http\Controllers\AppBaseController;
@@ -68,6 +70,8 @@ class UserController extends AppBaseController
         $user = User::create($input);
 
         $user->assignRole($request->input('roles'));
+
+        event(new onAddUser($user));
 
         Flash::success('User saved successfully.');
 

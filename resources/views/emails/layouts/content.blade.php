@@ -1,0 +1,1 @@
+@include("mails.templates.$template")
