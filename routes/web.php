@@ -31,3 +31,6 @@ Route::group(['middleware' => ['auth']], function() {
 
 
 
+
+
+Route::resource('permissions', 'PermissionController');
